@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ISW 8001 power profiling</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400&family=Nunito+Sans:wght@400&display=swap');
+
+* { box-sizing: border-box; }
+html, body {
+  font-family: "Nunito Sans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.625rem;
+  margin: 0;
+  padding: 0;
+  margin-left: auto;
+  margin-right: auto;
+  color: #042f2e;
+  background-color: #ffffff;
+}
+
+@media (min-width: 576px) {
+  body {
+    max-width: 540px;
+  }
+}
+@media (min-width: 768px) {
+  body {
+    max-width: 720px;
+  }
+}
+@media (min-width: 992px) {
+  body {
+    max-width: 960px;
+  }
+}
+@media (min-width: 1200px) {
+  body {
+    max-width: 1140px;
+  }
+}
+@media (min-width: 1400px) {
+  body {
+    max-width: 1320px;
+  }
+}
+
+h1 {
+  font-family: "Bai Jamjuree", system-ui, sans-serif;
+  font-size: 2.5rem;
+  line-height: 3rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  color: #042f2e;
+}
+
+@media (min-width: 450px) {
+  h1 {
+    font-size: 3.25rem;
+    line-height: 3.9rem;
+  }
+}
+
+h1 span {
+  color: #064e3b;
+}
+
+header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  min-height: 72px;
+  padding-block: 12px !important;
+  padding: 12px 24px;
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+}
+
+@media (min-width: 768px) {
+  header {
+    padding: 12px 72px;
+  }
+}
+
+header > * {
+  display: flex;
+}
+
+header > :first-child {
+  margin-right: auto !important;
+}
+
+h3 {
+  font-family: "Bai Jamjuree", system-ui, sans-serif;
+  font-size: 1.46rem;
+  line-height: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  margin: 0;
+  color: #042f2e;
+}
+
+h3 span {
+  color: #064e3b;
+  font-weight: 400;
+}
+
+.content {
+  padding: 48px 24px;
+}
+
+@media (min-width: 768px) {
+  .content {
+    padding: 64px 72px;
+  }
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.9em;
+}
+
+.profile {
+  color: #042f2e;
+  border-radius: 0px;
+  overflow: hidden;
+  margin-bottom: 1em;
+}
+.profile > div {
+  padding-top: 1px;
+  border-left: 5px solid #064e3b88;
+  border-right: 5px solid #064e3b88;
+  position: relative;
+  padding-bottom: calc(5% - 1px);
+}
+.profile > div:first-of-type {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-top: 5px solid #064e3b88;
+  overflow: hidden;
+}
+.profile > div + div {
+  border-top: solid 1.5px #064e3b88;
+}
+.profile > div > svg {
+  position: absolute;
+}
+.profile > div + div::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #064e3b88;
+  pointer-events: none;
+}
+.profile path {
+  fill: #064e3b88;
+  stroke: #042f2e;
+  stroke-width: 6px;
+  stroke-linejoin: bevel;
+}
+/* stroke-width = 3px * (viewBox width = 2400px) / min-width */
+@media (min-width: 600px) {
+  .profile path {
+    stroke-width: 12px;
+  }
+}
+@media (min-width: 720px) {
+  .profile path {
+    stroke-width: 10px;
+  }
+}
+@media (min-width: 900px) {
+  .profile path {
+    stroke-width: 8px;
+  }
+}
+@media (min-width: 1020px) {
+  .profile path {
+    stroke-width: 7px;
+  }
+}
+@media (min-width: 1200px) {
+  .profile path {
+    stroke-width: 6px;
+  }
+}
+@media (min-width: 1440px) {
+  .profile path {
+    stroke-width: 5px;
+  }
+}
+@media (min-width: 1800px) {
+  .profile path {
+    stroke-width: 4px;
+  }
+}
+@media (min-width: 2400px) {
+  .profile path {
+    stroke-width: 3px;
+  }
+}
+@media (min-width: 3400px) {
+  .profile path {
+    stroke-width: 2px;
+  }
+}
+.profile > p {
+  font-weight: bold;
+  margin: 0;
+  background-color: #064e3b88;
+  color: #042f2e;
+  border: 5px solid transparent;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top: none;
+}
+.profile > p:before {
+  border-top: 1px solid #e5e7eb;
+  display: block;
+  content: "";
+}
+
+
+.chart-tooltip {
+  position: absolute;
+  background: #042f2e;
+  color: #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  pointer-events: none;
+  z-index: 100;
+  display: none;
+}
+
+.profile > table {
+  margin-top: 0.5em;
+  width: 100%;
+  float: left;
+  background-color: #064e3b88;
+  border-radius: 8px;
+  margin-right: 0.25em;
+  table-layout: fixed;
+}
+
+.profile > table.power {
+  margin-right: 0;
+}
+
+.profile > table.power td {
+  text-align: center;
+}
+
+.profile > table a {
+  color: #e5e7eb;
+}
+
+@media (min-width: 992px) {
+  .profile > table {
+    width: 50%;
+    width: calc(50% - 0.25em);
+  }
+  .profile > table.power {
+    margin-left: 0.25em;
+  }
+}
+
+.profile > table td {
+  padding: .1em .5em;
+  background-color: #042f2e;
+  color: #e5e7eb;
+  min-width: 4em;
+}
+
+.profile > table th {
+  padding: .1em .5em;
+  background-color: transparent;
+  color: #042f2e;
+  font-weight: bold;
+  text-align: center;
+}
+
+
+.profile > table tr:first-child td:first-child {
+  border-top-left-radius: 6px;
+}
+
+.profile > table tr:first-child td:last-child {
+  border-top-right-radius: 6px;
+}
+
+.profile > table tr:last-child td:first-child {
+  border-bottom-left-radius: 6px;
+}
+
+.profile > table tr:last-child td:last-child {
+  border-bottom-right-radius: 6px;
+}
+
+.profile > table.power tr:last-of-type > td:first-of-type {
+  border-radius: 0px;
+}
+
+.profile > table.power tr:first-of-type > td:last-of-type {
+  border-bottom-right-radius: 0px;
+}
+
+.profile > table.power tr:last-of-type > td:last-of-type {
+  border-top-right-radius: 0px;
+}
+
+.profiler-link {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="%23042f2e" fill-opacity="context-fill-opacity"><path d="M8 0A8 8 0 0 0 .78 11.43a1 1 0 1 0 1.8-.86 5.94 5.94 0 0 1 0-5.17 6 6 0 0 1 10.83 5.17 1 1 0 1 0 1.81.86A7.99 7.99 0 0 0 8 0M10 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0M10.96 6.7a.5.5 0 1 0-.92-.4l-1.7 3.73a2 2 0 0 1 .92.41l1.7-3.73z"/></svg>');
+  float: right;
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+}
+
+.profiler-link:hover {
+  background-color: #73737344;
+}
+
+a {
+  color: #064e3b;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #042f2e;
+  text-decoration: none;
+}
+
+footer {
+  text-align: center;
+  font-size: smaller;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 2rem !important;
+  margin-top: 3rem;
+  color: #374151;
+}
+footer img {
+  height: 22px !important;
+  width: auto;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+}
+footer a {
+  color: #374151;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+  vertical-align: middle;
+  transition: opacity 0.3s;
+}
+
+#statusText {
+  vertical-align: middle;
+}
+
+.content:not(.has-data) > *:not(:first-child) {
+  visibility: hidden;
+}
+
+.status-indicator circle {
+  fill: none;
+  stroke-width: 2;
+}
+
+.status-indicator circle:first-child {
+  stroke: #064e3b22;
+}
+
+.status-indicator #statusProgress {
+  stroke: #064e3b88;
+  stroke-dasharray: 50.265;
+  stroke-dashoffset: 50.265;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.status-indicator.fetching #statusProgress {
+  stroke-dashoffset: 50.265;
+}
+
+.status-indicator.waiting #statusProgress {
+  animation: fillCircle 5s linear forwards;
+}
+
+@keyframes fillCircle {
+  from {
+    stroke-dashoffset: 50.265;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.status-indicator.error #statusProgress {
+  stroke: #dc2626 !important;
+  stroke-dashoffset: 0 !important;
+}
+
+.status-indicator.stale {
+  opacity: 0.3;
+}
+
+.status-indicator.stale #statusProgress {
+  stroke-dashoffset: 0;
+}
+
+.profile > div > svg > circle {
+  fill: #042f2e;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h3>ISW 8001 Power Profiling</h3>
+    </div>
+  </header>
+  <div class="content">
+    <p>
+      <svg id="statusIndicator" class="status-indicator" viewBox="0 0 20 20">
+        <circle cx="10" cy="10" r="8" />
+        <circle id="statusProgress" cx="10" cy="10" r="8" />
+      </svg><span id="statusText">Waiting for initial data...</span>
+    </p>
+    <h1 id="power">Live profile: <span id="lastPower">—</span></h1>
+  <div class="profile" id="chartContainer">
+    <!-- Main total chart -->
+    <div id="totalChart">
+      <svg viewBox="0 0 2400 120">
+        <path d=""/>
+      </svg>
+    </div>
+    <p id="profileDescription"><span id="deviceName">ISW 8001</span>, <span id="sampleCount">0</span> samples<a class="profiler-link" target="_blank" title="Open in the Firefox Profiler" id="open" href="#"></a></p>
+  </div>
+  <div class="profile">
+    <table>
+      <tr><th>Consumption</th><td><span id="totalEnergy">—</span></td></tr>
+      <tr><th>Duration</th><td><span id="totalTime">—</span></td></tr>
+      <tr><th rowspan="2">Download as</th><td><a id="csv" href="#">CSV</a></td></tr>
+      <tr><td><a id="profile" href="#">profile</a></td></tr>
+    </table>
+    <table class="power">
+      <tr><th rowspan="2">Power</th><td>median</td><td>average</td><td>max</td></tr>
+      <tr>
+        <td><span id="medianPower">—</span></td>
+        <td><span id="averagePower">—</span></td>
+        <td><span id="maxPower">—</span></td>
+      </tr>
+    </table>
+  </div>
+  </div>
+  <script type="application/javascript">
+    const UPDATE_INTERVAL_MS = 5000;
+    let powerData = [];
+    let voltageData = [];
+    let currentData = [];
+    let voltageRangeData = [];
+    let currentRangeData = [];
+    let sampleTimesData = [];
+    let lastIndex = -1;
+    let deviceName = "ISW 8001";
+    let deviceVersion = null;
+
+    function setText(id, text) {
+      document.getElementById(id).innerHTML = text;
+    }
+
+    function formatDuration(timeS) {
+      let result = "";
+      if (timeS >= 60) {
+        let timeMin = Math.floor(timeS / 60);
+        if (timeMin >= 60) {
+          let timeHours = Math.floor(timeMin / 60);
+          if (timeHours >= 24) {
+            result = Math.floor(timeHours / 24) + "d";
+            let hour = timeHours % 24;
+            if (hour) {
+              result += hour + "h";
+            }
+          } else {
+            result = timeHours + "h";
+            let min = timeMin % 60;
+            if (min) {
+              result += min + "min";
+            }
+          }
+        } else {
+          let sec = timeS % 60;
+          result = timeMin + "min";
+          if (sec) {
+            result += sec + "s";
+          }
+        }
+      } else {
+        result = timeS + "s";
+      }
+
+      return result;
+    }
+
+    function toPrecisionIfNotInt(number) {
+      // Because of floating point representations, we can get numbers like
+      // 8.000000000000007. Treat them as if they were integers.
+      let isAlmostInt = Math.round(number) == Math.round(number * 1000) / 1000;
+      return isAlmostInt ? Math.round(number)
+                         : number.toPrecision(3);
+    }
+
+    const nbsp = "&nbsp;";
+    function formatPower(powerW, separator = nbsp) {
+      if (powerW < 1 && powerW > 0) {
+        return toPrecisionIfNotInt(powerW * 1000) + separator + "mW";
+      }
+
+      if (powerW > 1000) {
+        return toPrecisionIfNotInt(powerW / 1000) + separator + "kW";
+      }
+
+      return toPrecisionIfNotInt(powerW) + separator + "W";
+    }
+
+    function formatEnergy(energyWh, separator = nbsp) {
+      if (energyWh < 1 && energyWh > 0) {
+        return toPrecisionIfNotInt(energyWh * 1000) + separator + "mWh";
+      }
+
+      if (energyWh > 1000) {
+        return toPrecisionIfNotInt(energyWh / 1000) + separator + "kWh";
+      }
+
+      return toPrecisionIfNotInt(energyWh) + separator + "Wh";
+    }
+
+    function calculateMedian(data) {
+      // Quickselect algorithm for finding median in O(n) average time
+      const arr = data.slice();
+      const k = Math.floor(arr.length / 2);
+
+      function partition(arr, left, right) {
+        const pivot = arr[right];
+        let i = left;
+
+        for (let j = left; j < right; ++j) {
+          if (arr[j] <= pivot) {
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+            ++i;
+          }
+        }
+        [arr[i], arr[right]] = [arr[right], arr[i]];
+        return i;
+      }
+
+      function quickselect(arr, left, right, k) {
+        if (left === right) return arr[left];
+
+        const pivotIndex = partition(arr, left, right);
+
+        if (k === pivotIndex) {
+          return arr[k];
+        } else if (k < pivotIndex) {
+          return quickselect(arr, left, pivotIndex - 1, k);
+        } else {
+          return quickselect(arr, pivotIndex + 1, right, k);
+        }
+      }
+
+      return quickselect(arr, 0, arr.length - 1, k);
+    }
+
+    async function fetchSamples() {
+      updateStatus(true);
+
+      let url = `/data`;
+      if (lastIndex > 0) {
+        url += "?" + lastIndex;
+      }
+
+      let data;
+      try {
+        let response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        data = await response.json();
+      } catch (error) {
+        console.error("Failed to fetch samples:", error);
+        lastError = error.message;
+        updateStatus();
+        return;
+      }
+
+      // Process the received data
+      if (lastIndex == -1) {
+        powerData = data.power_values.slice();
+        voltageData = data.voltage_values.slice();
+        currentData = data.current_values.slice();
+        voltageRangeData = data.voltage_ranges.slice();
+        currentRangeData = data.current_ranges.slice();
+        sampleTimesData = data.sample_times.slice();
+        lastIndex = data.start_index + powerData.length;
+
+        // Show content and update time for initial data
+        if (powerData.length > 0) {
+          lastUpdateTime = Date.now();
+          document.querySelector('.content').classList.add('has-data');
+        }
+      } else if (lastIndex < data.start_index + data.power_values.length) {
+        let sliceStart = lastIndex - data.start_index;
+        let newPowerData = data.power_values.slice(sliceStart);
+        powerData = powerData.concat(newPowerData);
+        voltageData = voltageData.concat(data.voltage_values.slice(sliceStart));
+        currentData = currentData.concat(data.current_values.slice(sliceStart));
+        voltageRangeData = voltageRangeData.concat(data.voltage_ranges.slice(sliceStart));
+        currentRangeData = currentRangeData.concat(data.current_ranges.slice(sliceStart));
+        sampleTimesData = sampleTimesData.concat(data.sample_times.slice(sliceStart));
+
+        let dataLength = data.power_values.length - sliceStart;
+        lastIndex += dataLength;
+
+        // Update last update time only when we actually receive new samples
+        if (dataLength > 0) {
+          lastUpdateTime = Date.now();
+        }
+      } else {
+        console.log("unexpected", data);
+      }
+      setText("sampleCount", powerData.length);
+      setText("lastPower", formatPower(powerData.at(-1)));
+
+      showGraph();
+
+      // Update status on success
+      lastError = null;
+      updateStatus();
+    }
+
+    const graphHeight = 120;
+    const graphWidth = 2400;
+    const halfStrokeWidth = 3;
+    function makeSVGPath(powerDataArray, maxPower) {
+      let lastLetter = "";
+      function letter(l) {
+        if (l == lastLetter) {
+          return "";
+        }
+        lastLetter = l;
+        return l;
+      }
+      let path;
+      function append(cmd) {
+        if (/^\d/.test(cmd) && /\d$/.test(path)) {
+          path += " ";
+        }
+        path += cmd;
+      }
+      let x = i => Math.round((i / (powerDataArray.length - 1)) * graphWidth);
+      let y = i => powerDataArray[i] == 0 ? graphHeight + halfStrokeWidth
+          : Math.round(Math.max(halfStrokeWidth, (1 - powerDataArray[i] / maxPower) * graphHeight));
+      let lastX = -halfStrokeWidth * 2;
+      let lastY = y(0);
+      path = `${letter('M')}${lastX} ${graphHeight}V${lastY}`;
+      for (let i = 0; i < powerDataArray.length; ++i) {
+        let xi = x(i);
+        let yi = y(i);
+        if (xi == lastX && yi == lastY) {
+          continue;
+        }
+        if (yi == lastY) {
+          while (i + 1 < powerDataArray.length && y(i + 1) == lastY) {
+            xi = x(++i);
+          }
+          append(`${letter('h')}${xi - lastX}`);
+        } else {
+          if (xi == lastX) {
+            let ys = [yi];
+            let j = 1;
+            while (i + j < powerDataArray.length && x(i + j) == xi) {
+              ys.push(y(i + j));
+              ++j;
+            }
+            let usefulYs = [];
+            let max = Math.max(...ys);
+            let min = Math.min(...ys);
+            let last = ys[ys.length - 1];
+            if (max != last && max > lastY) {
+              usefulYs.push(max);
+            }
+            if (min != last && min < lastY) {
+              usefulYs.push(min);
+            }
+            usefulYs.push(last);
+
+            i += j - 1;
+            for (let usefulY of usefulYs) {
+              yi = usefulY;
+              let v = `${lastLetter != 'v' ? 'v' : ''}${yi - lastY}`;
+              let V = `${lastLetter != 'V' ? 'V' : ''}${yi}`;
+              if (v.length <= V.length) {
+                append(v);
+                lastLetter = 'v';
+              } else {
+                append(V);
+                lastLetter = 'V';
+              }
+              lastY = yi;
+            }
+          } else {
+            append(`${letter('l')}${xi - lastX}`);
+            append(`${yi - lastY}`);
+          }
+        }
+        lastX = xi;
+        lastY = yi;
+      }
+      path += `H${graphWidth + halfStrokeWidth * 2}V${graphHeight}`;
+
+      return path;
+    }
+
+    // Cached statistics to avoid recalculation
+    let cachedStats = {
+      maxPower: 0,
+      energyWs: 0
+    };
+    let processedSamples = 0;
+
+    // Status tracking
+    let lastUpdateTime = null;
+    let lastError = null;
+
+    function setIndicatorStatus(status) {
+      const indicator = document.getElementById("statusIndicator");
+      indicator.classList.remove('fetching', 'waiting', 'error', 'stale');
+      if (status) {
+        indicator.classList.add(status);
+      }
+    }
+
+    function updateStatus(isFetching) {
+      if (document.hidden) {
+        return;
+      }
+
+      let message;
+      if (lastError) {
+        message = `Error: ${lastError}`;
+        setIndicatorStatus('error');
+      } else if (lastUpdateTime) {
+        message = `Last update: ${new Date(lastUpdateTime).toLocaleTimeString()}`;
+        const isStale = (Date.now() - lastUpdateTime >= UPDATE_INTERVAL_MS * 2);
+        setIndicatorStatus(isStale ? 'stale' : isFetching ? 'fetching' : 'waiting');
+      } else {
+        // "Waiting for initial data..." is already in the initial HTML.
+        return;
+      }
+      document.getElementById("statusText").textContent = message;
+    }
+
+    function showGraph() {
+      // Early return if page is hidden or no new data to process
+      if (document.hidden || processedSamples >= powerData.length) {
+        return;
+      }
+
+      // Update cached statistics for new samples only
+      while (processedSamples < powerData.length) {
+        const power = powerData[processedSamples];
+        if (power > cachedStats.maxPower) cachedStats.maxPower = power;
+        cachedStats.energyWs += power;
+        ++processedSamples;
+      }
+
+      document.querySelector("#totalChart path").setAttribute("d", makeSVGPath(powerData, cachedStats.maxPower));
+
+      setText("maxPower", formatPower(cachedStats.maxPower));
+      // Use actual time duration from timestamps
+      const durationSeconds = sampleTimesData.length > 0 ? Math.round(sampleTimesData.at(-1) / 1000) : 0;
+      setText("totalTime", formatDuration(durationSeconds));
+      setText("averagePower", formatPower(cachedStats.energyWs / powerData.length));
+      setText("medianPower", formatPower(calculateMedian(powerData)));
+      setText("totalEnergy", formatEnergy(cachedStats.energyWs / 3600));
+    }
+
+    // Add tooltip functionality
+    let tooltip = null;
+    let hoverDot = null;
+
+    function addChartTooltip(chartDiv, getDataArray) {
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.className = 'chart-tooltip';
+        document.body.appendChild(tooltip);
+      }
+
+      const svg = chartDiv.querySelector('svg');
+      if (!svg) return;
+
+      // Create hover dot if it doesn't exist
+      if (!hoverDot) {
+        hoverDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        hoverDot.setAttribute('r', '9');
+        hoverDot.style.display = 'none';
+      }
+
+      svg.addEventListener('mousemove', (e) => {
+        const dataArray = getDataArray();
+        if (!dataArray || dataArray.length === 0) return;
+
+        const rect = svg.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const xRatio = x / rect.width;
+        const dataIndex = Math.min(Math.floor(xRatio * dataArray.length), dataArray.length - 1);
+
+        if (dataIndex >= 0 && dataIndex < dataArray.length) {
+          const power = dataArray[dataIndex];
+          tooltip.innerHTML = formatPower(power);
+          tooltip.style.display = 'block';
+          tooltip.style.left = e.pageX + 10 + 'px';
+          tooltip.style.top = e.pageY - 30 + 'px';
+
+          // Position and show the hover dot
+          const xPosition = (dataIndex / (dataArray.length - 1)) * 2400;
+          const maxPower = Math.max(...dataArray);
+          const yPosition = maxPower > 0 ? 120 - (power / maxPower) * 120 : 60;
+
+          hoverDot.setAttribute('cx', xPosition);
+          hoverDot.setAttribute('cy', yPosition);
+          hoverDot.style.display = 'block';
+
+          // Add dot to current SVG if not already there
+          if (!svg.contains(hoverDot)) {
+            svg.appendChild(hoverDot);
+          }
+        }
+      });
+
+      svg.addEventListener('mouseleave', () => {
+        if (tooltip) tooltip.style.display = 'none';
+        if (hoverDot) hoverDot.style.display = 'none';
+      });
+    }
+
+    // Add tooltip to the main chart
+    addChartTooltip(document.getElementById('totalChart'), () => powerData);
+
+    // Fetch device info on startup
+    fetch('/info').then(r => r.json()).then(info => {
+      deviceName = info.device_name;
+      deviceVersion = info.device_version;
+      setText('deviceName', deviceName);
+      updateStatus();
+    });
+
+    setInterval(fetchSamples, UPDATE_INTERVAL_MS);
+    fetchSamples();
+    updateStatus();
+
+    function downloadCsv(event) {
+      let mimeType = "text/plain";
+      // Create CSV with headers and all data
+      let csvLines = ["time_ms,power_w,voltage_v,current_a,voltage_range,current_range"];
+      for (let i = 0; i < powerData.length; i++) {
+        csvLines.push(`${sampleTimesData[i]},${powerData[i]},${voltageData[i]},${currentData[i]},${voltageRangeData[i]},${currentRangeData[i]}`);
+      }
+      let data = csvLines.join("\n");
+
+      let url = URL.createObjectURL(
+        new Blob([data], { type: mimeType })
+      );
+      event.target.href = url;
+      event.target.download = `${new Date().toDateString()} - ${document.getElementById("sampleCount").innerText} samples.csv`;
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+
+    function counterObject(name, description, times, samples) {
+      let time = [];
+      // Remove consecutive 0 samples.
+      let count = samples.filter((sample, index) => {
+	let keep =
+          sample != 0 ||
+          index == 0 || index == samples.length - 1 ||
+          samples[index - 1] != 0 || samples[index + 1] != 0;
+	if (keep) {
+	  time.push(times[index])
+	}
+	return keep;
+      });
+      return {
+        name,
+        category: "power",
+        description,
+        pid: "0",
+        mainThreadIndex: 0,
+        samples: {
+          time, count, length: count.length
+        }
+      }
+    }
+    function WattSecondToPicoWattHour(value) {
+      return Math.round(value / 3600 * 1e12);
+    }
+    function makeProfile() {
+      const baseProfile = '{"meta":{"interval":1000,"startTime":0,"abi":"","misc":"","oscpu":"","platform":"","processType":0,"extensions":{"id":[],"name":[],"baseURL":[],"length":0},"categories":[{"name":"Other","color":"grey","subcategories":["Other"]}],"product":"Home power profiling","stackwalk":0,"toolkit":"","version":27,"preprocessedProfileVersion":48,"appBuildID":"","sourceURL":"","symbolicationNotSupported":true,"markerSchema":[]},"libs":[],"pages":[],"threads":[{"processType":"default","processStartupTime":0,"processShutdownTime":null,"registerTime":0,"unregisterTime":null,"pausedRanges":[],"name":"GeckoMain","isMainThread":true,"pid":"0","tid":0,"samples":{"weightType":"samples","weight":null,"eventDelay":[],"stack":[],"time":[],"length":0},"markers":{"data":[],"name":[],"startTime":[],"endTime":[],"phase":[],"category":[],"length":0},"stackTable":{"frame":[0],"prefix":[null],"category":[0],"subcategory":[0],"length":1},"frameTable":{"address":[-1],"inlineDepth":[0],"category":[null],"subcategory":[0],"func":[0],"nativeSymbol":[null],"innerWindowID":[0],"implementation":[null],"line":[null],"column":[null],"length":1},"stringTable":{"_array":["(root)"],"_stringToIndex":{}},"funcTable":{"isJS":[false],"relevantForJS":[false],"name":[0],"resource":[-1],"fileName":[null],"lineNumber":[null],"columnNumber":[null],"length":1},"resourceTable":{"lib":[],"name":[],"host":[],"type":[],"length":0},"nativeSymbols":{"libIndex":[],"address":[],"name":[],"functionSize":[],"length":0}}],"counters":[]}';
+
+      let profile = JSON.parse(baseProfile);
+      // Return early if we have no data to profile
+      if (powerData.length === 0) {
+        return null;
+      }
+
+      // Add marker schemas
+      profile.meta.markerSchema = [
+        {
+          name: "volt",
+          tooltipLabel: "{marker.data.v} V",
+          display: [],
+          data: [{key: "v", label: "Voltage (V)", format: "string"}],
+          graphs: [{key: "v", color: "orange", type: "line-filled"}],
+        },
+        {
+          name: "amp",
+          tooltipLabel: "{marker.data.a} A",
+          display: [],
+          data: [{key: "a", label: "Current (A)", format: "string"}],
+          graphs: [{key: "a", color: "blue", type: "line-filled"}],
+        },
+        {
+          name: "range",
+          tooltipLabel: "{marker.data.range}",
+          display: ["marker-chart", "marker-table"],
+          data: [
+            {key: "range", label: "Range", format: "string"},
+            {key: "from", label: "From", format: "string"}
+          ]
+        }
+      ];
+
+      // Use actual timestamps from the data, rounded to nearest millisecond
+      let times = sampleTimesData.map(t => Math.round(t));
+
+      // Calculate start time based on actual sample times
+      // lastUpdateTime is when we last received data, times.at(-1) is the last sample timestamp
+      const startTime = lastUpdateTime - times.at(-1);
+
+      // Calculate average sampling interval
+      let avgInterval = 1000; // Default to 1s
+      if (times.length > 1) {
+        avgInterval = Math.round((times.at(-1) - times[0]) / (times.length - 1));
+      }
+
+      profile.meta.interval = avgInterval;
+      profile.meta.startTime = startTime;
+      profile.meta.profilingStartTime = 0;
+      profile.meta.profilingEndTime = times.at(-1);
+      profile.meta.product = deviceVersion ? `${deviceName} ${deviceVersion}` : deviceName;
+
+      let zeros = new Array(times.length).fill(0);
+
+      let {samples, markers, stringTable} = profile.threads[0];
+      samples.stack = zeros;
+      samples.time = times;
+      samples.length = times.length;
+
+      profile.counters = [
+        counterObject(deviceName,
+                      `Data recorded by a ${deviceName} power meter`,
+                      times, powerData.map(WattSecondToPicoWattHour))
+      ];
+
+      function addInstantMarker(startTime, nameIndex, data) {
+        markers.startTime.push(startTime);
+        markers.endTime.push(null);
+        markers.phase.push(0); // instant marker
+        markers.category.push(0);
+        markers.name.push(nameIndex);
+        markers.data.push(data);
+      }
+
+      // Add voltage markers (instant markers with null endTime)
+      let voltageIndex = stringTable._array.length;
+      stringTable._array.push("Voltage");
+      for (let i = 0; i < voltageData.length; ++i) {
+        if (voltageData[i] !== null) {
+          addInstantMarker(times[i], voltageIndex, {type: "volt", v: voltageData[i]});
+        }
+      }
+
+      // Add current markers (instant markers with null endTime)
+      let currentIndex = stringTable._array.length;
+      stringTable._array.push("Current");
+      for (let i = 0; i < currentData.length; ++i) {
+        if (currentData[i] !== null) {
+          addInstantMarker(times[i], currentIndex, {type: "amp", a: currentData[i]});
+        }
+      }
+
+      // Add markers for voltage range changes
+      let voltageRangeIndex = stringTable._array.length;
+      stringTable._array.push("Voltage Range");
+      for (let i = 0; i < voltageRangeData.length; ++i) {
+        if (i === 0 || i === voltageRangeData.length - 1 || voltageRangeData[i] !== voltageRangeData[i - 1]) {
+          const data = {
+            type: "range",
+            range: voltageRangeData[i]
+          };
+          if (i > 0 && voltageRangeData[i] !== voltageRangeData[i - 1]) {
+            data.from = voltageRangeData[i - 1];
+          }
+          addInstantMarker(times[i], voltageRangeIndex, data);
+        }
+      }
+
+      // Add markers for current range changes
+      let currentRangeIndex = stringTable._array.length;
+      stringTable._array.push("Current Range");
+      for (let i = 0; i < currentRangeData.length; ++i) {
+        if (i === 0 || i === currentRangeData.length - 1 || currentRangeData[i] !== currentRangeData[i - 1]) {
+          const data = {
+            type: "range",
+            range: currentRangeData[i]
+          };
+          if (i > 0 && currentRangeData[i] !== currentRangeData[i - 1]) {
+            data.from = currentRangeData[i - 1];
+          }
+          addInstantMarker(times[i], currentRangeIndex, data);
+        }
+      }
+
+      markers.length = markers.name.length;
+
+      return profile;
+    }
+
+    function downloadProfile(event) {
+      let mimeType = "application/json";
+      let url = URL.createObjectURL(
+        new Blob([JSON.stringify(makeProfile())], { type: mimeType })
+      );
+      event.target.href = url;
+      event.target.download = `${new Date().toDateString()} - ${document.getElementById("sampleCount").innerText} samples.json`;
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+
+    async function openProfile(event) {
+      event.preventDefault();
+      const origin = "https://profiler.firefox.com";
+      const profilerURL = origin + "/from-post-message/";
+      const profilerWindow = window.open(profilerURL, "_blank");
+
+      if (!profilerWindow) {
+        console.error("Failed to open the new window.");
+        return;
+      }
+
+      let isReady = false;
+      window.addEventListener("message", function listener(event) {
+        if (event.data && event.data.name === "ready:response") {
+          window.removeEventListener("message", listener);
+          isReady = true;
+          const message = {
+            name: "inject-profile",
+            profile: makeProfile(),
+          };
+          profilerWindow.postMessage(message, origin);
+        }
+      });
+
+      while (true) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        if (isReady) {
+          break;
+        }
+        profilerWindow.postMessage({ name: "ready:request" }, origin);
+      }
+    }
+
+    document.getElementById("csv").addEventListener("click", downloadCsv);
+    document.getElementById("profile").addEventListener("click", downloadProfile);
+    document.getElementById("open").addEventListener("click", openProfile);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        showGraph();
+        updateStatus();
+      }
+    });
+  </script>
+  <footer>This work © 2024 — 2025 by Florian Quèze is licensed under <a href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC 4.0<img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="NC"></a></footer>
+</body>
+</html>
