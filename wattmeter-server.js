@@ -115,6 +115,37 @@ const app = (req, res) => {
     return;
   }
 
+  // /range endpoint to set range mode or specific ranges
+  if (req.url === "/range" && req.method === "POST") {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const data = JSON.parse(body);
+        const value = data.value.toLowerCase();
+
+        if (value === 'auto') {
+          await meter.enableAutoRange();
+        } else if (value === 'manual') {
+          await meter.disableAutoRange();
+        } else if (value.startsWith('u')) {
+          const range = parseInt(value.substring(1));
+          await meter.setVoltageRange(range);
+        } else if (value.startsWith('i')) {
+          const range = parseInt(value.substring(1));
+          await meter.setCurrentRange(range);
+        } else {
+          throw new Error(`Invalid range value: ${data.value}`);
+        }
+
+        sendJSON(res, { success: true });
+      } catch (error) {
+        sendError(res, error.message);
+      }
+    });
+    return;
+  }
+
   // /data endpoint for web UI
   if (req.url.startsWith("/data")) {
     if (samples.length === 0) {

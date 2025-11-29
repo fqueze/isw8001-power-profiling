@@ -207,6 +207,46 @@ class ISW8001 extends EventEmitter {
   }
 
   /**
+   * Enable auto-range selection
+   */
+  async enableAutoRange() {
+    this.sendCommand('AUTORANGE');
+    await this.sleep(100);
+  }
+
+  /**
+   * Disable auto-range selection (manual mode)
+   */
+  async disableAutoRange() {
+    this.sendCommand('MANUAL');
+    await this.sleep(100);
+  }
+
+  /**
+   * Set voltage range
+   * @param {number} range - Range number (1, 2, or 3)
+   */
+  async setVoltageRange(range) {
+    if (![1, 2, 3].includes(range)) {
+      throw new Error('Invalid voltage range. Must be 1 (50V), 2 (150V), or 3 (500V)');
+    }
+    this.sendCommand(`SET:U${range}`);
+    await this.sleep(100);
+  }
+
+  /**
+   * Set current range
+   * @param {number} range - Range number (1, 2, or 3)
+   */
+  async setCurrentRange(range) {
+    if (![1, 2, 3].includes(range)) {
+      throw new Error('Invalid current range. Must be 1 (160mA), 2 (1.6A), or 3 (16A)');
+    }
+    this.sendCommand(`SET:I${range}`);
+    await this.sleep(100);
+  }
+
+  /**
    * Parse measurement response
    * Format: U1=0.01E+0 I1=0.0E-3   W=-0.000E+0
    * or: U3 I1 W=200.0E+0 (when using VAS? command)

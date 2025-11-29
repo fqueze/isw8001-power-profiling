@@ -378,8 +378,86 @@ footer a {
   vertical-align: middle;
 }
 
-.content:not(.has-data) > *:not(:first-child) {
+.content:not(.has-data) > *:not(:first-child):not(.range-control-container) {
   visibility: hidden;
+}
+
+.range-control-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.range-control-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.range-control-header input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.range-control-header label {
+  cursor: pointer;
+  margin: 0;
+}
+
+.range-control-inline {
+  border-collapse: separate;
+  background-color: #064e3b88;
+  border-radius: 8px;
+}
+
+.range-control-inline th {
+  padding: .1em .5em;
+  background-color: transparent;
+  color: #042f2e;
+  font-weight: bold;
+  text-align: left;
+}
+
+.range-control-inline td {
+  padding: .1em .5em;
+  background-color: #042f2e;
+  color: #e5e7eb;
+}
+
+.range-control-inline tr:first-child td:first-child {
+  border-top-left-radius: 6px;
+}
+
+.range-control-inline tr:first-child td:last-child {
+  border-top-right-radius: 6px;
+}
+
+.range-control-inline tr:last-child td:first-child {
+  border-bottom-left-radius: 6px;
+}
+
+.range-control-inline tr:last-child td:last-child {
+  border-bottom-right-radius: 6px;
+}
+
+.range-control-inline td {
+  vertical-align: middle;
+}
+
+.range-control-inline input[type="radio"] {
+  cursor: pointer;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.range-control-inline label {
+  cursor: pointer;
+  margin-left: 0.25rem;
+  vertical-align: middle;
 }
 
 .status-indicator circle {
@@ -448,6 +526,46 @@ footer a {
         <circle id="statusProgress" cx="10" cy="10" r="8" />
       </svg><span id="statusText">Waiting for initial data...</span>
     </p>
+
+    <div class="range-control-container">
+      <div class="range-control-header">
+        <input type="checkbox" id="autoRange" checked>
+        <label for="autoRange">Automatic Range Selection</label>
+      </div>
+      <table id="rangeTable" class="range-control-inline">
+      <tr>
+        <th>Voltage</th>
+        <td>
+          <input type="radio" id="voltageRange1" name="voltageRange" value="u1">
+          <label for="voltageRange1">50V</label>
+        </td>
+        <td>
+          <input type="radio" id="voltageRange2" name="voltageRange" value="u2">
+          <label for="voltageRange2">150V</label>
+        </td>
+        <td>
+          <input type="radio" id="voltageRange3" name="voltageRange" value="u3">
+          <label for="voltageRange3">500V</label>
+        </td>
+      </tr>
+      <tr>
+        <th>Current</th>
+        <td>
+          <input type="radio" id="currentRange1" name="currentRange" value="i1">
+          <label for="currentRange1">160mA</label>
+        </td>
+        <td>
+          <input type="radio" id="currentRange2" name="currentRange" value="i2">
+          <label for="currentRange2">1.6A</label>
+        </td>
+        <td>
+          <input type="radio" id="currentRange3" name="currentRange" value="i3">
+          <label for="currentRange3">16A</label>
+        </td>
+      </tr>
+    </table>
+    </div>
+
     <h1 id="power">Live profile: <span id="lastPower">—</span></h1>
   <div class="profile" id="chartContainer">
     <!-- Main total chart -->
@@ -654,6 +772,27 @@ footer a {
       setText("lastPower", formatPower(powerData.at(-1)));
 
       showGraph();
+
+      // Update radio button selections to match current ranges
+      if (voltageRangeData.length > 0) {
+        const latestVoltageRange = voltageRangeData.at(-1);
+        const rangeMap = { '50V': 'u1', '150V': 'u2', '500V': 'u3' };
+        const rangeValue = rangeMap[latestVoltageRange];
+        if (rangeValue) {
+          const radio = document.querySelector(`input[value="${rangeValue}"]`);
+          if (radio) radio.checked = true;
+        }
+      }
+
+      if (currentRangeData.length > 0) {
+        const latestCurrentRange = currentRangeData.at(-1);
+        const rangeMap = { '160mA': 'i1', '1.6A': 'i2', '16A': 'i3' };
+        const rangeValue = rangeMap[latestCurrentRange];
+        if (rangeValue) {
+          const radio = document.querySelector(`input[value="${rangeValue}"]`);
+          if (radio) radio.checked = true;
+        }
+      }
 
       // Update status on success
       lastError = null;
@@ -1109,6 +1248,47 @@ footer a {
         updateStatus();
       }
     });
+
+    // Range control functionality
+
+    // Helper function to send range command
+    async function setRange(value) {
+      try {
+        const response = await fetch('/range', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value })
+        });
+        if (!response.ok) {
+          console.error('Failed to set range:', response.status);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Failed to set range:', error);
+        return false;
+      }
+    }
+
+    // Auto-range checkbox handler
+    const autoRangeCheckbox = document.getElementById('autoRange');
+    autoRangeCheckbox.addEventListener('change', async (e) => {
+      const success = await setRange(e.target.checked ? 'auto' : 'manual');
+      if (!success) {
+        // Revert checkbox state on error
+        e.target.checked = !e.target.checked;
+      }
+    });
+
+    // Range radio handler using event delegation
+    document.getElementById('rangeTable').addEventListener('change', async (e) => {
+      if (e.target.type === 'radio' && e.target.checked) {
+        // Uncheck auto-range checkbox (without sending MANUAL command)
+        autoRangeCheckbox.checked = false;
+        await setRange(e.target.value);
+      }
+    });
+
   </script>
   <footer>This work © 2024 — 2025 by Florian Quèze is licensed under <a href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC 4.0<img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="NC"></a></footer>
 </body>
