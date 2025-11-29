@@ -118,10 +118,14 @@ async function runTests() {
     console.log('    ✓ Reactive power measurement:', parsedVar.type === 'VAR' ? 'OK' : 'FAIL');
     console.log();
 
-    console.log('  6d: Power factor (PF)');
-    console.log('    Note: PF mode cannot be activated via serial command (COS command not supported)');
-    console.log('    PF mode only accessible via front panel button');
-    console.log('    ✓ PF mode limitation documented: OK');
+    console.log('  6d: Switch to PWF (Power Factor)');
+    await meter.setFunction('PWF');
+    await meter.sleep(300);
+    const pwfValue = await meter.getValue();
+    const parsedPWF = meter.parseMeasurement(pwfValue);
+    console.log('    Response:', pwfValue);
+    console.log('    Parsed:', parsedPWF);
+    console.log('    ✓ Power factor measurement:', parsedPWF.type === 'PF' ? 'OK' : 'FAIL');
     console.log();
 
     console.log('  6e: Switch back to WATT');

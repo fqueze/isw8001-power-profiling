@@ -175,14 +175,14 @@ class ISW8001 extends EventEmitter {
 
   /**
    * Set measurement function
-   * Note: PF (power factor) mode cannot be activated via serial command, only via front panel button
    */
   async setFunction(func) {
-    const validFunctions = ['WATT', 'VAR', 'VOLT', 'AMP'];
-    if (!validFunctions.includes(func.toUpperCase())) {
+    const validFunctions = ['WATT', 'VAR', 'VOLT', 'AMP', 'PWF'];
+    const upperFunc = func.toUpperCase();
+    if (!validFunctions.includes(upperFunc)) {
       throw new Error(`Invalid function. Must be one of: ${validFunctions.join(', ')}`);
     }
-    this.sendCommand(func.toUpperCase());
+    this.sendCommand(upperFunc);
     await this.sleep(200); // Give device time to switch
   }
 

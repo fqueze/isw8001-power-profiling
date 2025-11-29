@@ -116,7 +116,8 @@ Based on the ISW8001 documentation:
 - `VAR` - Measure reactive power
 - `VOLT` - Measure voltage
 - `AMP` - Measure current
-- **Note**: Power factor (PF) mode cannot be activated via serial command (the documented `COS` command does not work). PF mode can only be selected via the front panel button.
+- `PWF` - Measure power factor (PF mode)
+  - **Note**: The manual documents a `COS` command, but it doesn't work. Use `PWF` instead.
 
 ### Range Selection (Manual Mode)
 - `SET:U1` - Voltage range 50V
@@ -156,8 +157,9 @@ The ISW8001's actual protocol differs significantly from what's documented in th
 2. **Flow Control Characters**: Device embeds XON (`0x11`) and XOFF (`0x13`) characters in response data - these must be filtered out
 3. **Response Format**: Manual shows `U3 I1 W=200.0E+0`, but device actually sends `U1=0.01E+0 I1=0.0E-3 W=-0.000E+0` with `=` signs for ALL values (voltage, current, and power)
 4. **Unit Names**: Device sends `VAR` (all caps) for reactive power, not `VAr` as documented. Power factor uses `PF`, not `COS`
-5. **Special Values**: Power factor can return `overflow` as a text value, not just numbers
-6. **Data Transmission**: Device sends data one byte at a time, requiring proper buffering
+5. **Power Factor Command**: Manual documents `COS` command to switch to power factor mode, but it doesn't work. Use `PWF` instead
+6. **Special Values**: Power factor can return `overflow` as a text value, not just numbers
+7. **Data Transmission**: Device sends data one byte at a time, requiring proper buffering
 
 ### Measurement Response (Actual Format)
 ```
