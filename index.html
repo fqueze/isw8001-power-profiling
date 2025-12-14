@@ -598,9 +598,12 @@ footer a {
     let powerData = [];
     let voltageData = [];
     let currentData = [];
+    let powerFactorData = [];
+    let frequencyData = [];
     let voltageRangeData = [];
     let currentRangeData = [];
     let sampleTimesData = [];
+    let debugTimingData = [];
     let lastIndex = -1;
     let deviceName = "ISW 8001";
     let deviceVersion = null;
@@ -771,6 +774,8 @@ footer a {
         powerData = data.power_values.slice();
         voltageData = data.voltage_values.slice();
         currentData = data.current_values.slice();
+        powerFactorData = data.power_factor_values ? data.power_factor_values.slice() : [];
+        frequencyData = data.frequency_values ? data.frequency_values.slice() : [];
         voltageRangeData = data.voltage_ranges.slice();
         currentRangeData = data.current_ranges.slice();
         sampleTimesData = data.sample_times.slice();
@@ -787,6 +792,8 @@ footer a {
         powerData = powerData.concat(newPowerData);
         voltageData = voltageData.concat(data.voltage_values.slice(sliceStart));
         currentData = currentData.concat(data.current_values.slice(sliceStart));
+        powerFactorData = powerFactorData.concat(data.power_factor_values ? data.power_factor_values.slice(sliceStart) : []);
+        frequencyData = frequencyData.concat(data.frequency_values ? data.frequency_values.slice(sliceStart) : []);
         voltageRangeData = voltageRangeData.concat(data.voltage_ranges.slice(sliceStart));
         currentRangeData = currentRangeData.concat(data.current_ranges.slice(sliceStart));
         sampleTimesData = sampleTimesData.concat(data.sample_times.slice(sliceStart));
@@ -1056,9 +1063,11 @@ footer a {
     function downloadCsv(event) {
       let mimeType = "text/plain";
       // Create CSV with headers and all data
-      let csvLines = ["time_ms,power_w,voltage_v,current_a,voltage_range,current_range"];
+      let csvLines = ["time_ms,power_w,voltage_v,current_a,power_factor,frequency_hz,voltage_range,current_range"];
       for (let i = 0; i < powerData.length; i++) {
-        csvLines.push(`${sampleTimesData[i]},${powerData[i]},${voltageData[i]},${currentData[i]},${voltageRangeData[i]},${currentRangeData[i]}`);
+        let pf = (powerFactorData[i] !== null && powerFactorData[i] !== undefined) ? powerFactorData[i] : '';
+        let freq = (frequencyData[i] !== null && frequencyData[i] !== undefined) ? frequencyData[i] : '';
+        csvLines.push(`${sampleTimesData[i]},${powerData[i]},${voltageData[i]},${currentData[i]},${pf},${freq},${voltageRangeData[i]},${currentRangeData[i]}`);
       }
       let data = csvLines.join("\n");
 
@@ -1097,7 +1106,7 @@ footer a {
     function WattSecondToPicoWattHour(value) {
       return Math.round(value / 3600 * 1e12);
     }
-    function makeProfile() {
+    async function makeProfile() {
       const baseProfile = '{"meta":{"interval":1000,"startTime":0,"abi":"","misc":"","oscpu":"","platform":"","processType":0,"extensions":{"id":[],"name":[],"baseURL":[],"length":0},"categories":[{"name":"Other","color":"grey","subcategories":["Other"]}],"product":"Home power profiling","stackwalk":0,"toolkit":"","version":27,"preprocessedProfileVersion":48,"appBuildID":"","sourceURL":"","symbolicationNotSupported":true,"markerSchema":[]},"libs":[],"pages":[],"threads":[{"processType":"default","processStartupTime":0,"processShutdownTime":null,"registerTime":0,"unregisterTime":null,"pausedRanges":[],"name":"GeckoMain","isMainThread":true,"pid":"0","tid":0,"samples":{"weightType":"samples","weight":null,"eventDelay":[],"stack":[],"time":[],"length":0},"markers":{"data":[],"name":[],"startTime":[],"endTime":[],"phase":[],"category":[],"length":0},"stackTable":{"frame":[0],"prefix":[null],"category":[0],"subcategory":[0],"length":1},"frameTable":{"address":[-1],"inlineDepth":[0],"category":[null],"subcategory":[0],"func":[0],"nativeSymbol":[null],"innerWindowID":[0],"implementation":[null],"line":[null],"column":[null],"length":1},"stringTable":{"_array":["(root)"],"_stringToIndex":{}},"funcTable":{"isJS":[false],"relevantForJS":[false],"name":[0],"resource":[-1],"fileName":[null],"lineNumber":[null],"columnNumber":[null],"length":1},"resourceTable":{"lib":[],"name":[],"host":[],"type":[],"length":0},"nativeSymbols":{"libIndex":[],"address":[],"name":[],"functionSize":[],"length":0}}],"counters":[]}';
 
       let profile = JSON.parse(baseProfile);
@@ -1106,13 +1115,24 @@ footer a {
         return null;
       }
 
+      // Fetch debug timing data for MPM1010
+      try {
+        let response = await fetch('/debug-timing');
+        if (response.ok) {
+          let data = await response.json();
+          debugTimingData = data.events || [];
+        }
+      } catch (error) {
+        console.log('Debug timing data not available:', error);
+      }
+
       // Add marker schemas
       profile.meta.markerSchema = [
         {
           name: "volt",
-          tooltipLabel: "{marker.data.v} V",
+          tooltipLabel: "{marker.data.v}",
           display: [],
-          data: [{key: "v", label: "Voltage (V)", format: "string"}],
+          data: [{key: "v", label: "Voltage", format: "string"}],
           graphs: [{key: "v", color: "orange", type: "line-filled"}],
         },
         {
@@ -1120,7 +1140,21 @@ footer a {
           tooltipLabel: "{marker.data.a} A",
           display: [],
           data: [{key: "a", label: "Current (A)", format: "string"}],
-          graphs: [{key: "a", color: "blue", type: "line-filled"}],
+          graphs: [{key: "a", color: "red", type: "line-filled"}],
+        },
+        {
+          name: "pf",
+          tooltipLabel: "{marker.data.pf}",
+          display: [],
+          data: [{key: "pf", label: "Power factor", format: "string"}],
+          graphs: [{key: "pf", color: "blue", type: "line-filled"}],
+        },
+        {
+          name: "freq",
+          tooltipLabel: "{marker.data.f} Hz",
+          display: [],
+          data: [{key: "f", label: "Frequency (Hz)", format: "string"}],
+          graphs: [{key: "f", color: "grey", type: "line-filled"}],
         },
         {
           name: "range",
@@ -1130,6 +1164,27 @@ footer a {
             {key: "range", label: "Range", format: "string"},
             {key: "from", label: "From", format: "string"}
           ]
+        },
+        {
+          name: "request-sent",
+          tooltipLabel: "Request sent",
+          display: ["marker-chart", "marker-table"],
+          data: []
+        },
+        {
+          name: "data-received",
+          tooltipLabel: "{marker.data.bytes} bytes: {marker.data.data}",
+          display: ["marker-chart", "marker-table"],
+          data: [
+            {key: "bytes", label: "Bytes", format: "integer"},
+            {key: "data", label: "Data (hex)", format: "string"}
+          ]
+        },
+        {
+          name: "measurement-complete",
+          tooltipLabel: "Measurement complete",
+          display: ["marker-chart", "marker-table"],
+          data: []
         }
       ];
 
@@ -1159,10 +1214,24 @@ footer a {
       samples.time = times;
       samples.length = times.length;
 
+      // Convert power (watts) to energy (picowatt-hours) between samples
+      // Energy at sample i = power[i] × time interval from sample i-1 to sample i
+      let energyData = powerData.map((power, index) => {
+        let intervalSeconds;
+        if (index === 0) {
+          // First sample: use average interval (no previous sample)
+          intervalSeconds = avgInterval / 1000;
+        } else {
+          // Use interval from previous sample
+          intervalSeconds = (times[index] - times[index - 1]) / 1000;
+        }
+        return WattSecondToPicoWattHour(power * intervalSeconds);
+      });
+
       profile.counters = [
         counterObject(deviceName,
                       `Data recorded by a ${deviceName} power meter`,
-                      times, powerData.map(WattSecondToPicoWattHour))
+                      times, energyData)
       ];
 
       function addInstantMarker(startTime, nameIndex, data) {
@@ -1189,6 +1258,24 @@ footer a {
       for (let i = 0; i < currentData.length; ++i) {
         if (currentData[i] !== null) {
           addInstantMarker(times[i], currentIndex, {type: "amp", a: currentData[i]});
+        }
+      }
+
+      // Add power factor markers (instant markers with null endTime)
+      let powerFactorIndex = stringTable._array.length;
+      stringTable._array.push("Power Factor");
+      for (let i = 0; i < powerFactorData.length; ++i) {
+        if (powerFactorData[i] !== null) {
+          addInstantMarker(times[i], powerFactorIndex, {type: "pf", pf: powerFactorData[i]});
+        }
+      }
+
+      // Add frequency markers (instant markers with null endTime)
+      let frequencyIndex = stringTable._array.length;
+      stringTable._array.push("Frequency");
+      for (let i = 0; i < frequencyData.length; ++i) {
+        if (frequencyData[i] !== null) {
+          addInstantMarker(times[i], frequencyIndex, {type: "freq", f: frequencyData[i]});
         }
       }
 
@@ -1224,18 +1311,61 @@ footer a {
         }
       }
 
+      // Add debug timing markers (MPM1010 only)
+      if (debugTimingData.length > 0) {
+        // Group by event type
+        let requestEvents = debugTimingData.filter(e => e.type === 'request-sent');
+        let dataEvents = debugTimingData.filter(e => e.type === 'data-received');
+        let completeEvents = debugTimingData.filter(e => e.type === 'measurement-complete');
+
+        // Add request-sent markers
+        if (requestEvents.length > 0) {
+          let requestIndex = stringTable._array.length;
+          stringTable._array.push("Request Sent");
+          for (let event of requestEvents) {
+            addInstantMarker(Math.round(event.timeMs), requestIndex, {type: "request-sent"});
+          }
+        }
+
+        // Add data-received markers
+        if (dataEvents.length > 0) {
+          let dataIndex = stringTable._array.length;
+          stringTable._array.push("Data Received");
+          for (let event of dataEvents) {
+            addInstantMarker(Math.round(event.timeMs), dataIndex, {
+              type: "data-received",
+              bytes: event.bytes || 0,
+              data: event.data || ""
+            });
+          }
+        }
+
+        // Add measurement-complete markers
+        if (completeEvents.length > 0) {
+          let completeIndex = stringTable._array.length;
+          stringTable._array.push("Measurement Complete");
+          for (let event of completeEvents) {
+            addInstantMarker(Math.round(event.timeMs), completeIndex, {type: "measurement-complete"});
+          }
+        }
+      }
+
       markers.length = markers.name.length;
 
       return profile;
     }
 
-    function downloadProfile(event) {
+    async function downloadProfile(event) {
+      event.preventDefault();
       let mimeType = "application/json";
+      const profile = await makeProfile();
       let url = URL.createObjectURL(
-        new Blob([JSON.stringify(makeProfile())], { type: mimeType })
+        new Blob([JSON.stringify(profile)], { type: mimeType })
       );
-      event.target.href = url;
-      event.target.download = `${new Date().toDateString()} - ${document.getElementById("sampleCount").innerText} samples.json`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${new Date().toDateString()} - ${document.getElementById("sampleCount").innerText} samples.json`;
+      link.click();
       setTimeout(() => URL.revokeObjectURL(url), 0);
     }
 
@@ -1251,13 +1381,14 @@ footer a {
       }
 
       let isReady = false;
-      window.addEventListener("message", function listener(event) {
+      window.addEventListener("message", async function listener(event) {
         if (event.data && event.data.name === "ready:response") {
           window.removeEventListener("message", listener);
           isReady = true;
+          const profile = await makeProfile();
           const message = {
             name: "inject-profile",
-            profile: makeProfile(),
+            profile: profile,
           };
           profilerWindow.postMessage(message, origin);
         }

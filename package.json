@@ -1,8 +1,8 @@
 {
-  "name": "isw8001-wattmeter",
+  "name": "serial-power-profiling",
   "version": "1.0.0",
-  "description": "Node.js module and web server for ISW 8001 wattmeter power profiling via RS232",
-  "main": "isw8001.js",
+  "description": "Node.js tools for serial power meters (ISW8001, MPM-1010) with web interface and Firefox Profiler export",
+  "main": "wattmeter-server.js",
   "scripts": {
     "start": "node wattmeter-server.js",
     "server": "node wattmeter-server.js",
@@ -11,11 +11,13 @@
     "test:fast": "node test-isw8001.js --fast"
   },
   "keywords": [
-    "wattmeter",
+    "power-profiling",
+    "power-meter",
     "ISW8001",
+    "MPM-1010",
     "serial",
     "rs232",
-    "power-measurement"
+    "firefox-profiler"
   ],
   "author": "",
   "license": "MIT",
