@@ -118,4 +118,4 @@ The device updates measurements at different rates regardless of serial polling 
 - Handle partial measurements - Accept V/I/W only (13 bytes) when interrupted
 - Timestamp when `!` arrives, not when measurement completes
 
-**Frame misalignment error:** If parsing bytes spanning two measurements (e.g., `...00 21 02 04...` → "00.2124"), you'll get bogus readings (2124W). Always detect `!` delimiters to split measurements.
+**Frame misalignment error:** If you don't detect `!` delimiters, you may parse bytes spanning two measurements. Example: `...11 00 09 21 02 04 12 03...` where `21` is `!` starting a new measurement with voltage 242.3V. Parsing `21 02 04 12` as power gives "1242." = 1242W (bogus for typical loads). Always detect `!` to split measurements.
